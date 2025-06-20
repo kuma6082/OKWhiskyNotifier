@@ -1,6 +1,7 @@
 function notifyDiscordForCalendarEvents() {
   // 特定の文字列を指定
   const targetKeyword = 'OKストア:国産洋酒';
+  const negativeKeyword = '【申し込み完了】';
 
   // 今日の日付
   const today = new Date();
@@ -15,7 +16,8 @@ function notifyDiscordForCalendarEvents() {
   let message = "";
 
   events.forEach(event => {
-    if (event.getTitle().includes(targetKeyword)) {
+    if (event.getTitle().includes(targetKeyword) &&
+        !event.getTitle().startsWith(negativeKeyword)) {
       const eventTitle = "本日抽選申し込み期間です。申し込みしてください。"
       message += `**${eventTitle}**`;
     }
@@ -29,19 +31,33 @@ function notifyDiscordForCalendarEvents() {
 }
 
 function sendToDiscord(content) {
-  var scriptProperties = PropertiesService.getScriptProperties();
+var scriptProperties = PropertiesService.getScriptProperties();
+var webhookUrl = scriptProperties.getProperty("discord");
+webhookUrl += (webhookUrl.includes('?') ? '&' : '?') + 'with_components=true';
+const appUrl  = scriptProperties.getProperty("webapp");
+let payload;
 
-  // スクリプトプロパティから保存済みの日付を取得
-  var webhookUrl = scriptProperties.getProperty("discord");
-  const payload = {
+if (content.includes('本日抽選申し込み期間です。申し込みしてください。')){
+  payload = {
     content: content,
+    components: [{
+      type: 1,
+      components: [{
+        type: 2,
+        style: 5,
+        label: '🔕 申し込み完了',
+        url: appUrl
+      }]
+    }]
   };
-
-  const options = {
-    method: "post",
-    contentType: "application/json",
-    payload: JSON.stringify(payload),
-  };
-
-  UrlFetchApp.fetch(webhookUrl, options);
+}else{
+  payload = {content: content}
 }
+
+   UrlFetchApp.fetch(webhookUrl, {
+     method: 'post',
+     contentType: 'application/json',
+     payload: JSON.stringify(payload)
+   });
+}
+

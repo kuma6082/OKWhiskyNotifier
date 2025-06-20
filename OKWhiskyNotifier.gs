@@ -89,6 +89,7 @@ function processExtractedUrl(extractedUrl) {
 
   // 必要な情報を抽出する
   var eventInfo = extractEventDetails(html);
+  eventInfo.url = extractedUrl;
 
   console.log(eventInfo)
 
@@ -154,7 +155,8 @@ function notifyDiscord(eventInfo) {
 **説明:**\n${eventInfo.captions.join("\n")}\n
 **お申込期間:** ${eventInfo.applicationPeriod}\n
 **当選発表日:** ${eventInfo.announcementDate}\n
-**お支払い・受け取り期間:** ${eventInfo.paymentPeriod}`;
+**お支払い・受け取り期間:** ${eventInfo.paymentPeriod}\n
+🔗 詳細はこちら: ${eventInfo.url}`;
 
   var payload = {
     content: content
