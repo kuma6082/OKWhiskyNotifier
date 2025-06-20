@@ -15,6 +15,7 @@
 
    - `notifyDiscord` により、取得した情報を Discord Webhook に送信
    - `notifyDiscordForCalendarEvents` により、カレンダーのイベントをチェックし、当日の抽選申し込み期限を通知
+   - リマインダー通知には申し込み完了を記録するためのボタンを含めることができます
 
 3. **Google カレンダーへの登録**
 
@@ -27,7 +28,10 @@
 
 Google Apps Script の **スクリプトプロパティ** に以下の値を追加してください。
 
-- `discord` ：Discord の Webhook URL
+ - `discord` ：Discord の Webhook URL
+ - `webapp` ：このリポジトリの `okWhiskyWebApp.gs` をデプロイした Web アプリの URL
+
+※ `webapp` はカレンダーのリマインダー通知に表示される「申し込み完了」ボタンからアクセスされます。
 
 ※ `lastSavedDate` はスクリプト実行時に自動的に作成されるため、事前設定は不要です。
 
