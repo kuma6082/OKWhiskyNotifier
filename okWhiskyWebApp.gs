@@ -1,44 +1,45 @@
-// function doGet() {
-//   // 今日 00:00 〜 明日 00:00
-//   const tz   = 'Asia/Tokyo';
-//   const now  = new Date();
-//   const start= new Date(now.getFullYear(), now.getMonth(), now.getDate());
-//   const end  = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+function doGet(e) {
+  Logger.log(e.parameter);
+  const eventId = e?.parameter?.eventId;
+  if (eventId) {
+    markEventAsDone_(eventId); // 👈 対象イベントのみ完了処理
+  }
 
-//   const calendar = CalendarApp.getDefaultCalendar();
-//   const events   = calendar.getEvents(start, end);
-
-//   events.forEach(ev => {
-//     const title = ev.getTitle();
-//     if (title.includes('OKストア:国産洋酒') && !title.startsWith('【申し込み完了】')) {
-//       ev.setTitle('【申し込み完了】' + title);
-//     }
-//   });
-
-//   return ContentService.createTextOutput('done');
-// }
-
-function doGet() {
-  markTodayAsDone_();                       // ← 既存ロジック
-
-  // HTML テンプレートを読み込み、タイムスタンプを渡す（任意）
   const tpl = HtmlService.createTemplateFromFile('complete');
   tpl.doneAt = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm:ss');
   return tpl.evaluate()
             .setTitle('完了しました')
-            .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL); // Discord 内プレビュー対策
+            .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-/** 既存のタイトル書き換え処理だけ切り出し */
-function markTodayAsDone_() {
-  const TARGET = 'OKストア:国産洋酒';
-  const DONE   = '【申し込み完了】';
+/**
+ * 特定のイベントIDを「完了」に変更する
+ */
+function markEventAsDone_(eventId) {
+  const DONE = '【申し込み完了】';
+  const TARGET = '国産洋酒の抽選販売実施について';
 
-  const now   = new Date();
+  const now = new Date();
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const end   = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-  CalendarApp.getDefaultCalendar()
-    .getEvents(start, end)
-    .filter(ev => ev.getTitle().includes(TARGET) && !ev.getTitle().startsWith(DONE))
-    .forEach(ev => ev.setTitle(DONE + ev.getTitle()));
+  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+
+  const events = CalendarApp.getDefaultCalendar().getEvents(start, end);
+
+  // イベントIDを正規化（@より前の部分だけ比較）
+  const normalizedId = eventId.split('@')[0];
+
+  // 部分一致で検索
+  const targetEvent = events.find(ev => ev.getId().split('@')[0] === normalizedId);
+
+  if (targetEvent) {
+    const title = targetEvent.getTitle();
+    if (title.includes(TARGET) && !title.startsWith(DONE)) {
+      targetEvent.setTitle(DONE + title);
+      Logger.log(`✅ イベント更新: ${title}`);
+    } else {
+      Logger.log(`⚠️ すでに完了済み、または対象外: ${title}`);
+    }
+  } else {
+    Logger.log(`❌ 該当イベントが見つかりません (eventId=${eventId})`);
+  }
 }
