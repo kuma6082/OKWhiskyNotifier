@@ -16,7 +16,7 @@ function doGet(e) {
  * 特定のイベントIDを「完了」に変更する
  */
 function markEventAsDone_(eventId) {
-  const DONE = '【申し込み完了】';
+  const DONE = '【処理済み】';
   const TARGET = '国産洋酒の抽選販売実施について';
 
   const now = new Date();

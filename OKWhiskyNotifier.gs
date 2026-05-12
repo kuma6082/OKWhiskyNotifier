@@ -148,7 +148,7 @@ function notifyDiscord(eventInfo) {
   var scriptProperties = PropertiesService.getScriptProperties();
 
   // スクリプトプロパティから保存済みの日付を取得
-  var webhookUrl = scriptProperties.getProperty("discord");
+  var webhookUrl = scriptProperties.getProperty("DISCORD_WEBHOOK_URL");
 
   var content = `新しいイベント情報が公開されました！🎉\n
 **タイトル:** ${eventInfo.title}\n

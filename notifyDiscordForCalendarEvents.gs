@@ -1,6 +1,6 @@
 function notifyDiscordForCalendarEvents() {
   const targetKeyword = '国産洋酒の抽選販売実施について';
-  const negativeKeyword = '【申し込み完了】';
+  const negativeKeyword = '【処理済み】';
 
   const today = new Date();
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -22,9 +22,9 @@ function notifyDiscordForCalendarEvents() {
 
 function sendToDiscord(content, eventId) {
   const scriptProperties = PropertiesService.getScriptProperties();
-  let webhookUrl = scriptProperties.getProperty("discord");
+  let webhookUrl = scriptProperties.getProperty("DISCORD_WEBHOOK_URL");
   webhookUrl += (webhookUrl.includes('?') ? '&' : '?') + 'with_components=true';
-  const appUrl = scriptProperties.getProperty("webapp");
+  const appUrl = scriptProperties.getProperty("WEBAPP_URL");
 
   const payload = {
     content: content,
