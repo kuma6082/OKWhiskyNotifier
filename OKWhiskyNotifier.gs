@@ -1,6 +1,4 @@
 function okWhiskyNotifier() {
-  notifyDiscordForCalendarEvents();
-  
   var url = "https://ok-corporation.jp/news/";
 
   var scriptProperties = PropertiesService.getScriptProperties();
@@ -145,10 +143,7 @@ function extractEventDetails(html) {
 }
 
 function notifyDiscord(eventInfo) {
-  var scriptProperties = PropertiesService.getScriptProperties();
-
-  // スクリプトプロパティから保存済みの日付を取得
-  var webhookUrl = scriptProperties.getProperty("DISCORD_WEBHOOK_URL");
+  var webhookUrl = getDiscordWebhookUrl_();
 
   var content = `新しいイベント情報が公開されました！🎉\n
 **タイトル:** ${eventInfo.title}\n
@@ -162,14 +157,13 @@ function notifyDiscord(eventInfo) {
     content: content
   };
 
-  var options = {
-    method: "post",
-    contentType: "application/json",
-    payload: JSON.stringify(payload),
-  };
+  var result = postDiscordWebhook_(webhookUrl, payload);
 
-  UrlFetchApp.fetch(webhookUrl, options);
-  Logger.log("Discordに通知しました。");
+  if (result.ok) {
+    Logger.log("Discordに通知しました。");
+  } else {
+    Logger.log("Discord通知に失敗しました。code=" + result.code);
+  }
 }
 
 function addToGoogleCalendar(eventInfo) {
